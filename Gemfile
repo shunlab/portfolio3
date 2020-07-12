@@ -14,6 +14,7 @@ group :development, :test do
   gem 'rails-controller-testing'
   gem 'sqlite3', '1.3.13'
   gem 'rubocop-airbnb'
+  gem "factory_bot_rails", "~> 4.10.0"
 end
 
 group :development do
@@ -39,3 +40,4 @@ group :production do
 end
 gem 'devise'
 gem 'bootstrap-sass'
+gem 'faker'
