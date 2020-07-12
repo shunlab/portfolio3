@@ -13,6 +13,7 @@ group :development, :test do
   gem 'byebug', '9.0.6', platform: :mri
   gem 'rails-controller-testing'
   gem 'sqlite3', '1.3.13'
+  gem 'rubocop-airbnb'
 end
 
 group :development do
