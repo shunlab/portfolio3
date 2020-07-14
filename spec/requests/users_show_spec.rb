@@ -1,4 +1,4 @@
-require "rails_helper"
+require "spec_helper"
 
 RSpec.describe "プロフィールページ", type: :request do
   let!(:user) { create(:user) }

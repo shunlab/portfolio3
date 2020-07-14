@@ -1,4 +1,4 @@
-require "rails_helper"
+require "spec_helper"
 
 RSpec.describe "ユーザー登録", type: :request do
   it "有効なユーザーで登録" do

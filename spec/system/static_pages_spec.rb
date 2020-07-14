@@ -1,4 +1,4 @@
-require 'rails_helper'
+require 'rspec_helper'
 
 RSpec.describe "StaticPages", type: :system do
   describe "トップページ" do

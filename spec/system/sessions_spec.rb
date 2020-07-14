@@ -1,4 +1,4 @@
-require 'rails_helper'
+require 'spec_helper'
 
 RSpec.describe "Sessions", type: :system do
   let!(:user) { create(:user) }
@@ -29,6 +29,11 @@ RSpec.describe "Sessions", type: :system do
       it "ログインフォームが正しく表示される" do
         expect(page).to have_css 'input#user_email'
         expect(page).to have_css 'input#user_password'
+      end
+
+      it "「ログインしたままにする」チェックボックスが表示される" do
+        expect(page).to have_content 'ログインしたままにする'
+        expect(page).to have_css 'input#session_remember_me'
       end
 
       it "ログインボタンが表示される" do
