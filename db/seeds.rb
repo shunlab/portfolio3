@@ -1,22 +1,48 @@
-# This file should contain all the record creation needed to seed the database with its default values.
-# The data can then be loaded with the rails db:seed command (or created alongside the database with db:setup).
+# This file is auto-generated from the current state of the database. Instead
+# of editing this file, please use the migrations feature of Active Record to
+# incrementally modify your database, and then regenerate this schema definition.
 #
-# Examples:
+# Note that this schema.rb definition is the authoritative source for your
+# database schema. If you need to create the application database on another
+# system, you should be using db:schema:load, not running all the migrations
+# from scratch. The latter is a flawed and unsustainable approach (the more migrations
+# you'll amass, the slower it'll run and the greater likelihood for issues).
 #
-#   movies = Movie.create([{ name: 'Star Wars' }, { name: 'Lord of the Rings' }])
-#   Character.create(name: 'Luke', movie: movies.first)
-User.create!(name:  "山田 太郎",
-            email: "sample@example.com",
-            password:              "foobar",
-            password_confirmation: "foobar")
-            admin: true)
+# It's strongly recommended that you check this file into your version control system.
 
-99.times do |n|
- name  = Faker::Name.name
- email = "sample-#{n+1}@example.com"
- password = "password"
- User.create!(name:  name,
-              email: email,
-              password:              password,
-              password_confirmation: password)
+ActiveRecord::Schema.define(version: 2020_03_29_083903) do
+
+  # These are extensions that must be enabled in order to support this database
+  enable_extension "plpgsql"
+
+  create_table "dishes", force: :cascade do |t|
+    t.string "name"
+    t.text "description"
+    t.float "portion"
+    t.text "tips"
+    t.text "reference"
+    t.integer "required_time"
+    t.integer "popularity"
+    t.text "cook_memo"
+    t.bigint "user_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id", "created_at"], name: "index_dishes_on_user_id_and_created_at"
+    t.index ["user_id"], name: "index_dishes_on_user_id"
+  end
+
+  create_table "users", force: :cascade do |t|
+    t.string "name"
+    t.string "email"
+    t.text "introduction"
+    t.string "sex"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "password_digest"
+    t.string "remember_digest"
+    t.boolean "admin", default: false
+    t.index ["email"], name: "index_users_on_email", unique: true
+  end
+
+  add_foreign_key "dishes", "users"
 end

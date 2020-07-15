@@ -3,18 +3,20 @@ require 'spec_helper'
 RSpec.describe "Users", type: :system do
   let!(:user) { create(:user) }
   let!(:admin_user) { create(:user, :admin) }
+
   describe "ユーザー一覧ページ" do
     it "ページネーション、削除ボタンが表示される事" do
-      create_list(:user,31)
+      create_list(:user, 31)
       login_for_system(user)
       visit users_path
       expect(page).to have_css "div.pagination"
       User.paginate(page: 1).each do |u|
         expect(page).to have_link u.name, href: user_path(u)
         expect(page).to have_content "#{u.name} | 削除" unless u == admin_user
+      end
     end
   end
-end
+
 context "管理者ユーザー以外の場合" do
  it "ぺージネーション、自分のアカウントのみ削除ボタンが表示されること" do
    create_list(:user, 30)
@@ -100,5 +102,5 @@ end
         expect(page).to have_content "自分のアカウントを削除しました"
       end
     end
-  end
+    end
 end

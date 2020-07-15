@@ -6,8 +6,9 @@ class UsersController < ApplicationController
   end
 
   def show
-    @user = User.find(params[:id])
-  end
+      @user = User.find(params[:id])
+      @dishes = @user.dishes.paginate(page: params[:page], per_page: 5)
+    end
 
   def new
     @user = User.new
@@ -16,6 +17,7 @@ class UsersController < ApplicationController
   def edit
     @user = User.find(params[:id])
   end
+
   def create
     @user = User.new(user_params)
     if @user.save
@@ -52,7 +54,7 @@ class UsersController < ApplicationController
       redirect_to root_url
     end
   end
-  
+
   private
 
   def user_params
@@ -63,6 +65,7 @@ class UsersController < ApplicationController
   def user_params_update
       params.require(:user).permit(:name, :email, :introduction, :sex)
     end
+
   def correct_user
     @user = User.find(params[:id])
     if !current_user?(@user)

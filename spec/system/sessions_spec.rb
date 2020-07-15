@@ -49,7 +49,7 @@ RSpec.describe "Sessions", type: :system do
         visit root_path
         expect(page).not_to have_content "メールアドレスとパスワードの組み合わせが誤っています"
       end
-    end
+      end
 
       it "有効なユーザーでログインする前後でヘッダーが正しく表示されていることを確認" do
         expect(page).to have_link 'クックログとは？', href: about_path
