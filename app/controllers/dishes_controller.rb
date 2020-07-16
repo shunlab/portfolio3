@@ -4,6 +4,7 @@ class DishesController < ApplicationController
 
   def show
     @dish = Dish.find(params[:id])
+    @comment = Comment.new
   end
 
   def new
@@ -51,7 +52,7 @@ class DishesController < ApplicationController
 
   private
 
-    
+
   def correct_user
     # 現在のユーザーが更新対象の料理を保有しているかどうか確認
     @dish = current_user.dishes.find_by(id: params[:id])
