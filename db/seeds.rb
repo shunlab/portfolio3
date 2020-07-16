@@ -10,39 +10,39 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_03_29_083903) do
+User.create!(name:  "山田 太郎",
+             email: "sample@example.com",
+             password:              "foobar",
+             password_confirmation: "foobar",
+             admin: true)
 
-  # These are extensions that must be enabled in order to support this database
-  enable_extension "plpgsql"
-
-  create_table "dishes", force: :cascade do |t|
-    t.string "name"
-    t.text "description"
-    t.float "portion"
-    t.text "tips"
-    t.text "reference"
-    t.integer "required_time"
-    t.integer "popularity"
-    t.text "cook_memo"
-    t.bigint "user_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["user_id", "created_at"], name: "index_dishes_on_user_id_and_created_at"
-    t.index ["user_id"], name: "index_dishes_on_user_id"
-  end
-
-  create_table "users", force: :cascade do |t|
-    t.string "name"
-    t.string "email"
-    t.text "introduction"
-    t.string "sex"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.string "password_digest"
-    t.string "remember_digest"
-    t.boolean "admin", default: false
-    t.index ["email"], name: "index_users_on_email", unique: true
-  end
-
-  add_foreign_key "dishes", "users"
+99.times do |n|
+  name  = Faker::Name.name
+  email = "sample-#{n+1}@example.com"
+  password = "password"
+  User.create!(name:  name,
+               email: email,
+               password:              password,
+               password_confirmation: password)
 end
+
+10.times do |n|
+  Dish.create!(name: Faker::Food.dish,
+               user_id: 1,
+               description: "冬に食べたくなる、身体が温まる料理です",
+               portion: 1.5,
+               tips: "ピリッと辛めに味付けするのがオススメ",
+               reference: "https://cookpad.com/recipe/2798655",
+               required_time: 30,
+               popularity: 5,
+               cook_memo: "初めて作った割にはうまくできた！",
+               user_id: 1)
+end
+
+# リレーションシップ
+users = User.all
+user  = users.first
+following = users[2..50]
+followers = users[3..40]
+following.each { |followed| user.follow(followed) }
+followers.each { |follower| follower.follow(user) }
