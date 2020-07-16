@@ -1,7 +1,9 @@
 Rails.application.routes.draw do
-  get 'notifications/index'
-
+  get 'lists/index'
   root 'static_pages#home'
+  get :lists, to: 'lists#index'
+  post   "lists/:dish_id/create"  => "lists#create"
+  delete "lists/:list_id/destroy" => "lists#destroy"
   get :favorites, to: 'favorites#index'
   get :about,        to: 'static_pages#about'
   get :use_of_terms, to: 'static_pages#terms'
@@ -18,6 +20,6 @@ Rails.application.routes.draw do
   end
   resources :relationships, only: [:create, :destroy]
   resources :comments, only: [:create, :destroy]
-  resources :notifications, only: :index 
+  resources :notifications, only: :index
   resources :dishes
 end
