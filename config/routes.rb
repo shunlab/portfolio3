@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  get 'notifications/index'
+
   root 'static_pages#home'
   get :favorites, to: 'favorites#index'
   get :about,        to: 'static_pages#about'
@@ -16,5 +18,6 @@ Rails.application.routes.draw do
   end
   resources :relationships, only: [:create, :destroy]
   resources :comments, only: [:create, :destroy]
+  resources :notifications, only: :index 
   resources :dishes
 end

@@ -7,6 +7,11 @@ class CommentsController < ApplicationController
     @comment = @dish.comments.build(user_id: current_user.id, content: params[:comment][:content])
     if !@dish.nil? && @comment.save
       flash[:success] = "コメントを追加しました"
+      if @user != current_user
+        @user.notifications.create(dish_id: @dish.id, variety: 2,
+                                   from_user_id: current_user.id,
+                                   content: @comment.content) 
+        @user.update_attribute(:notification, true)
     else
       flash[:denger] = "からのコメントは投稿できません"
     end
@@ -14,5 +19,12 @@ class CommentsController < ApplicationController
   end
 
   def destroy
+    @comment = Comment.find(params[:id])
+    @dish = @comment.dish
+    if current_user.id == @comment.user_id
+      @comment.destroy
+      flash[:success] = "コメントを削除しました"
+    end
+    redirect_to dish_url(@dish)
   end
 end

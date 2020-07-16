@@ -9,7 +9,13 @@ class FavoritesController < ApplicationController
       format.html { redirect_to request.referrer || root_url }
       format.js
     end
-  end
+
+    if @user != current_user
+        @user.notifications.create(dish_id: @dish.id, variety: 1,
+                                   from_user_id: current_user.id) # お気に入り登録は通知種別1
+        @user.update_attribute(:notification, true)
+      end
+    end
 
   def destroy
     @dish = Dish.find(params[:dish_id])
