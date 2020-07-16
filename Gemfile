@@ -10,6 +10,8 @@ gem 'turbolinks',   '5.0.1'
 gem 'uglifier',     '3.2.0'
 gem 'will_paginate',           '3.1.7'
 gem 'bootstrap-will_paginate', '1.0.0'
+gem 'carrierwave',             '1.2.2'
+gem "mini_magick",             '>= 4.9.4'
 
 group :development, :test do
   gem 'byebug', '9.0.6', platform: :mri
@@ -39,6 +41,7 @@ end
 
 group :production do
   gem 'pg', '0.20.0'
+  gem 'fog', '1.42' 
 end
 gem 'devise'
 gem 'bootstrap-sass'
