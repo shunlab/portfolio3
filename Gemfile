@@ -15,7 +15,6 @@ gem 'faker'
 gem 'jbuilder', '~> 2.5'
 gem 'jquery-rails', '4.3.1'
 gem 'mini_magick', '>= 4.9.4'
-gem 'pg', '>= 0.18', '< 2.0'
 gem 'puma', '~> 3.11'
 gem 'rails', '5.2.3'
 gem 'ransack'
@@ -26,6 +25,7 @@ gem 'will_paginate', '3.1.7'
 
 group :production do
   gem 'fog', '1.42'
+  gem 'pg', '>= 0.18', '< 2.0'
 end
 
 group :development, :test do
@@ -53,5 +53,4 @@ group :test do
 end
 
 gem 'devise'
-gem 'sqlite3'
 gem 'tzinfo-data', platforms: %i(mingw mswin x64_mingw jruby)

@@ -49,9 +49,6 @@ class DishesController < ApplicationController
     end
   end
 
-  def index
-  end
-
   private
 
     def dish_params
