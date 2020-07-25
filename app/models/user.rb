@@ -1,7 +1,4 @@
 class User < ApplicationRecord
-  has_many :favorites, dependent: :destroy
-  has_many :notifications, dependent: :destroy
-  has_many :lists, dependent: :destroy
   has_many :dishes, dependent: :destroy
   has_many :active_relationships, class_name: "Relationship",
                                   foreign_key: "follower_id",
@@ -11,6 +8,9 @@ class User < ApplicationRecord
                                    foreign_key: "followed_id",
                                    dependent: :destroy
   has_many :followers, through: :passive_relationships, source: :follower
+  has_many :favorites, dependent: :destroy
+  has_many :notifications, dependent: :destroy
+  has_many :lists, dependent: :destroy
   attr_accessor :remember_token
   before_save :downcase_email
   validates :name, presence: true, length: { maximum: 50 }
@@ -54,11 +54,11 @@ class User < ApplicationRecord
 
   # ユーザーのステータスフィードを返す
   def feed
-      following_ids = "SELECT followed_id FROM relationships
-                       WHERE follower_id = :user_id"
-      Dish.where("user_id IN (#{following_ids})
-                       OR user_id = :user_id", user_id: id)
-    end
+    following_ids = "SELECT followed_id FROM relationships
+                     WHERE follower_id = :user_id"
+    Dish.where("user_id IN (#{following_ids})
+                     OR user_id = :user_id", user_id: id)
+  end
 
   # ユーザーをフォローする
   def follow(other_user)
@@ -109,7 +109,6 @@ class User < ApplicationRecord
   def list?(dish)
     !List.find_by(dish_id: dish.id, from_user_id: id).nil?
   end
-
 
   private
 

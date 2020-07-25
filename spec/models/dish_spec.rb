@@ -53,7 +53,7 @@ RSpec.describe Dish, type: :model do
     it "最も最近の投稿が最初の投稿になっていること" do
       expect(dish).to eq Dish.first
     end
+      end
+    end
   end
-end
-end
 end

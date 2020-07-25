@@ -3,6 +3,7 @@ inherit_from:
 
 Rails:
   Enabled: true
+
 AllCops:
   Exclude:
     - 'bin/**'
@@ -37,3 +38,36 @@ Style/MixinUsage:
 
 Style/MutableConstant:
   Enabled: false
+
+Rails/HelperInstanceVariable:
+  Enabled: false
+
+Lint/AssignmentInCondition:
+  Enabled: false
+
+Style/MultilineTernaryOperator:
+  Enabled: false
+
+Airbnb/DefaultScope:
+  Enabled: false
+
+Lint/UselessAssignment:
+  Exclude:
+    - 'app/uploaders/*'
+
+Style/TrailingCommaInArrayLiteral:
+  Enabled: false
+
+Layout/FirstArrayElementLineBreak:
+  Enabled: false
+
+Airbnb/RiskyActiverecordInvocation:
+  Enabled: false
+
+Airbnb/ModuleMethodInWrongFile:
+  Description: Define a module method in the file that defines the module, not a file that
+    happens to use the module as a namespace.
+  Enabled: false
+  Include:
+    - 'app/**/*'
+    - 'lib/**/*'

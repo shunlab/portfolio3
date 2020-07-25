@@ -18,7 +18,7 @@ RSpec.describe "料理編集", type: :request do
                                                tips: "ピリッと辛めに味付けするのがオススメ",
                                                reference: "https://cookpad.com/recipe/2798655",
                                                required_time: 30,
-                                               popularity: 5
+                                               popularity: 5,
                                                picture: picture2 } }
       redirect_to dish
       follow_redirect!

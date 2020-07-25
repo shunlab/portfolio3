@@ -16,9 +16,9 @@
 /tmp/*
 !/log/.keep
 !/tmp/.keep
-
+/vendor/bundle
+/vendor/.keep
 /node_modules
 /yarn-error.log
-/vendor
 .byebug_history
 /public/uploads/

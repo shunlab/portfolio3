@@ -11,20 +11,21 @@ RSpec.describe "コメント機能", type: :request do
       before do
         login_for_request(user)
       end
-      it "有効な内容のコメントが登録できること" do
-         expect {
-           post comments_path, params: { dish_id: dish.id,
-                                         comment: { content: "最高です！" } }
-         }.to change(dish.comments, :count).by(1)
-       end
 
-       it "無効な内容のコメントが登録できないこと" do
-         expect {
-           post comments_path, params: { dish_id: dish.id,
-                                         comment: { content: "" } }
-         }.not_to change(dish.comments, :count)
-       end
-     end
+      it "有効な内容のコメントが登録できること" do
+        expect {
+          post comments_path, params: { dish_id: dish.id,
+                                        comment: { content: "最高です！" } }
+        }.to change(dish.comments, :count).by(1)
+      end
+
+      it "無効な内容のコメントが登録できないこと" do
+        expect {
+          post comments_path, params: { dish_id: dish.id,
+                                        comment: { content: "" } }
+        }.not_to change(dish.comments, :count)
+      end
+    end
 
     context "ログインしていない場合" do
       it "コメントは登録できず、ログインページへリダイレクトすること" do
@@ -36,27 +37,27 @@ RSpec.describe "コメント機能", type: :request do
       end
     end
   end
+
   context "コメントの削除" do
-   context "ログインしている場合" do
-     context "コメントを作成したユーザーである場合" do
-       it "コメントの削除ができること" do
-         login_for_request(user)
-         expect {
-           delete comment_path(comment)
-         }.to change(dish.comments, :count).by(-1)
-       end
-     end
+    context "ログインしている場合" do
+      context "コメントを作成したユーザーである場合" do
+        it "コメントの削除ができること" do
+          login_for_request(user)
+          expect {
+            delete comment_path(comment)
+          }.to change(dish.comments, :count).by(-1)
+        end
+      end
 
-     context "コメントを作成したユーザーでない場合" do
-       it "コメントの削除はできないこと" do
-         login_for_request(other_user)
-           expect {
-       　    delete comment_path(comment)
-　          }.not_to change(dish.comments, :count)
-         end
-       end
-     end
-
+      context "コメントを作成したユーザーでない場合" do
+        it "コメントの削除はできないこと" do
+          login_for_request(other_user)
+          expect {
+            delete comment_path(comment)
+          }.not_to change(dish.comments, :count)
+        end
+      end
+    end
 
     context "ログインしていない場合" do
       it "コメントの削除はできず、ログインページへリダイレクトすること" do
