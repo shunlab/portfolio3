@@ -36,6 +36,15 @@
                                data: { confirm: "本当に削除しますか？" } %>
           </div>
         <% end %>
+        <div class="dish-ingredient">
+        <p class="title-ingredient-mini">【材料】</p>
+        <% dish.ingredients.each_with_index do |ing, i| %>
+          <% if ing.name.present? %>
+            <%= "｜" unless i == 0 %><%= ing.name %>: <%= ing.quantity %>
+          <% end %>
+        <% end %>
+      </div>
+      <div class="dish-other-info">
       </div>
     </div>
   </div>
