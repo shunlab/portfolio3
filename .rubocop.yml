@@ -11,7 +11,7 @@ AllCops:
     - 'db/**/*'
     - 'vendor/**/**/*'
     - 'spec/*'
-
+    - 'spec/system/**'
 Style/TrailingCommaInHashLiteral:
   Enabled: false
 
