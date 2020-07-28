@@ -24,7 +24,7 @@ gem 'uglifier', '>= 1.3.0'
 gem 'will_paginate', '3.1.7'
 
 group :production do
-  gem 'fog', '1.42'
+  gem 'fog-aws'
   gem 'pg', '>= 0.18', '< 2.0'
 end
 
@@ -55,3 +55,4 @@ end
 
 gem 'devise'
 gem 'tzinfo-data', platforms: %i(mingw mswin x64_mingw jruby)
+gem 'dotenv-rails'
