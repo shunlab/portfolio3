@@ -1,6 +1,6 @@
-# frozen_string_literal: true
-
 class ListsController < ApplicationController
+  before_action :logged_in_user
+
   def index
     @lists = current_user.lists
     @log = Log.new
@@ -11,7 +11,7 @@ class ListsController < ApplicationController
     @user = @dish.user
     current_user.list(@dish)
     respond_to do |format|
-      format.html { redirect_to request.refarrer || root_url }
+      format.html { redirect_to request.referrer || root_url }
       format.js
     end
   end

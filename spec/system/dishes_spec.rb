@@ -3,8 +3,9 @@ require 'rails_helper'
 RSpec.describe "Dishes", type: :system do
   let!(:user) { create(:user) }
   let!(:other_user) { create(:user) }
-  let!(:dish) { create(:dish, :picture, user: user) }
+  let!(:dish) { create(:dish, :picture, :ingredients, user: user) }
   let!(:comment) { create(:comment, user_id: user.id, dish: dish) }
+  let!(:log) { create(:log, dish: dish) }
 
   describe "料理登録ページ" do
     before do
@@ -25,11 +26,20 @@ RSpec.describe "Dishes", type: :system do
         expect(page).to have_content '料理名'
         expect(page).to have_content '説明'
         expect(page).to have_content '分量 [人分]'
+        expect(page).to have_css 'label[for=dish_ingredients_attributes_0_name]',
+                                 text: '材料（10種類まで登録可）', count: 1
+        expect(page).to have_css 'label[for=dish_ingredients_attributes_0_quantity]',
+                                 text: '量', count: 1
         expect(page).to have_content 'コツ・ポイント'
         expect(page).to have_content '作り方参照用URL'
         expect(page).to have_content '所要時間 [分]'
         expect(page).to have_content '人気度 [1~5]'
         expect(page).to have_content 'クックメモ'
+      end
+
+      it "材料入力部分が10行表示されること" do
+        expect(page).to have_css 'input.ingredient_name', count: 10
+        expect(page).to have_css 'input.ingredient_quantity', count: 10
       end
     end
 
@@ -42,6 +52,8 @@ RSpec.describe "Dishes", type: :system do
         fill_in "作り方参照用URL", with: "https://cookpad.com/recipe/2798655"
         fill_in "所要時間", with: 30
         fill_in "人気度", with: 5
+        fill_in "dish[ingredients_attributes][0][name]", with: "豆腐"
+        fill_in "dish[ingredients_attributes][0][quantity]", with: "2個"
         attach_file "dish[picture]", "#{Rails.root}/spec/fixtures/test_dish.jpg"
         click_button "登録する"
         expect(page).to have_content "料理が登録されました！"
@@ -83,6 +95,8 @@ RSpec.describe "Dishes", type: :system do
         expect(page).to have_content '料理名'
         expect(page).to have_content '説明'
         expect(page).to have_content '分量 [人分]'
+        expect(page).to have_css 'p.title-ingredient-name', text: '材料（10種類まで登録可）', count: 1
+        expect(page).to have_css 'p.title-ingredient-quantity', text: '量', count: 1
         expect(page).to have_content 'コツ・ポイント'
         expect(page).to have_content '作り方参照用URL'
         expect(page).to have_content '所要時間 [分]'
@@ -91,6 +105,11 @@ RSpec.describe "Dishes", type: :system do
 
       it "画像アップロード部分が表示されること" do
         expect(page).to have_css 'input[type=file]'
+      end
+
+      it "材料入力部分が10行表示されること" do
+        expect(page).to have_css 'input.ingredient_name', count: 10
+        expect(page).to have_css 'input.ingredient_quantity', count: 10
       end
     end
 
@@ -103,6 +122,8 @@ RSpec.describe "Dishes", type: :system do
         fill_in "作り方参照用URL", with: "henshu-https://cookpad.com/recipe/2798655"
         fill_in "所要時間", with: 60
         fill_in "人気度", with: 1
+        fill_in "dish[ingredients_attributes][0][name]", with: "編集-豆腐"
+        fill_in "dish[ingredients_attributes][0][quantity]", with: "編集-2個"
         attach_file "dish[picture]", "#{Rails.root}/spec/fixtures/test_dish2.jpg"
         click_button "更新する"
         expect(page).to have_content "料理情報が更新されました！"
@@ -113,6 +134,8 @@ RSpec.describe "Dishes", type: :system do
         expect(dish.reload.reference).to eq "henshu-https://cookpad.com/recipe/2798655"
         expect(dish.reload.required_time).to eq 60
         expect(dish.reload.popularity).to eq 1
+        expect(dish.reload.ingredients.first.name).to eq "編集-豆腐"
+        expect(dish.reload.ingredients.first.quantity).to eq "編集-2個"
         expect(dish.reload.picture.url).to include "test_dish2.jpg"
       end
 
@@ -152,6 +175,10 @@ RSpec.describe "Dishes", type: :system do
         expect(page).to have_content dish.reference
         expect(page).to have_content dish.required_time
         expect(page).to have_content dish.popularity
+        dish.ingredients.each do |i|
+          expect(page).to have_content i.name
+          expect(page).to have_content i.quantity
+        end
         expect(page).to have_link nil, href: dish_path(dish), class: 'dish-picture'
       end
     end
@@ -168,7 +195,108 @@ RSpec.describe "Dishes", type: :system do
       end
     end
 
-    context "検索機能" do
+    context "コメントの登録＆削除" do
+      it "自分の料理に対するコメントの登録＆削除が正常に完了すること" do
+        login_for_system(user)
+        visit dish_path(dish)
+        fill_in "comment_content", with: "今日の味付けは大成功"
+        click_button "コメント"
+        within find("#comment-#{Comment.last.id}") do
+          expect(page).to have_selector 'span', text: user.name
+          expect(page).to have_selector 'span', text: '今日の味付けは大成功'
+        end
+        expect(page).to have_content "コメントを追加しました！"
+        click_link "削除", href: comment_path(Comment.last)
+        expect(page).not_to have_selector 'span', text: '今日の味付けは大成功'
+        expect(page).to have_content "コメントを削除しました"
+      end
+
+      it "別ユーザーの料理のコメントには削除リンクが無いこと" do
+        login_for_system(other_user)
+        visit dish_path(dish)
+        within find("#comment-#{comment.id}") do
+          expect(page).to have_selector 'span', text: user.name
+          expect(page).to have_selector 'span', text: comment.content
+          expect(page).not_to have_link '削除', href: dish_path(dish)
+        end
+      end
+    end
+
+    context "ログ登録＆削除" do
+      context "料理詳細ページから" do
+        it "自分の料理に対するログ登録＆削除が正常に完了すること" do
+          login_for_system(user)
+          visit dish_path(dish)
+          fill_in "log_content", with: "ログ投稿テスト"
+          click_button "ログ追加"
+          within find("#log-#{Log.first.id}") do
+            expect(page).to have_selector 'span', text: "#{dish.logs.count}回目"
+            expect(page).to have_selector 'span',
+                                          text: %Q(#{Log.last.created_at.strftime("%Y/%m/%d(%a)")})
+            expect(page).to have_selector 'span', text: 'ログ投稿テスト'
+          end
+          expect(page).to have_content "クックログを追加しました！"
+          click_link "削除", href: log_path(Log.first)
+          expect(page).not_to have_selector 'span', text: 'ログ投稿テスト'
+          expect(page).to have_content "クックログを削除しました"
+        end
+
+        it "別ユーザーの料理ログにはログ登録フォームが無いこと" do
+          login_for_system(other_user)
+          visit dish_path(dish)
+          expect(page).not_to have_button "作る"
+        end
+      end
+
+      context "トップページから" do
+        it "自分の料理に対するログ登録が正常に完了すること" do
+          login_for_system(user)
+          visit root_path
+          fill_in "log_content", with: "ログ投稿テスト"
+          click_button "追加"
+          expect(Log.first.content).to eq 'ログ投稿テスト'
+          expect(page).to have_content "クックログを追加しました！"
+        end
+
+        it "別ユーザーの料理にはログ登録フォームがないこと" do
+          create(:dish, user: other_user)
+          login_for_system(user)
+          user.follow(other_user)
+          visit root_path
+          within find("#dish-#{Dish.first.id}") do
+            expect(page).not_to have_button "作る"
+          end
+        end
+      end
+
+      context "プロフィールページから" do
+        it "自分の料理に対するログ登録が正常に完了すること" do
+          login_for_system(user)
+          visit user_path(user)
+          fill_in "log_content", with: "ログ投稿テスト"
+          click_button "追加"
+          expect(Log.first.content).to eq 'ログ投稿テスト'
+          expect(page).to have_content "クックログを追加しました！"
+        end
+      end
+
+      context "リスト一覧ページから" do
+        it "自分の料理に対するログ登録が正常に完了し、リストから料理が削除されること" do
+          login_for_system(user)
+          user.list(dish)
+          visit lists_path
+          expect(page).to have_content dish.name
+          fill_in "log_content", with: "ログ投稿テスト"
+          click_button "追加"
+          expect(Log.first.content).to eq 'ログ投稿テスト'
+          expect(page).to have_content "クックログを追加しました！"
+          expect(List.count).to eq 0
+        end
+      end
+    end
+  end
+
+  context "検索機能" do
     context "ログインしている場合" do
       before do
         login_for_system(user)
@@ -208,13 +336,13 @@ RSpec.describe "Dishes", type: :system do
         create(:dish, name: '野菜カレー', user: other_user)
 
         # 誰もフォローしない場合
-        fill_in 'q_name_cont', with: 'かに'
+        fill_in 'q_name_or_ingredients_name_cont', with: 'かに'
         click_button '検索'
         expect(page).to have_css 'h3', text: "”かに”の検索結果：1件"
         within find('.dishes') do
           expect(page).to have_css 'li', count: 1
         end
-        fill_in 'q_name_cont', with: '野菜'
+        fill_in 'q_name_or_ingredients_name_cont', with: '野菜'
         click_button '検索'
         expect(page).to have_css 'h3', text: "”野菜”の検索結果：1件"
         within find('.dishes') do
@@ -223,22 +351,31 @@ RSpec.describe "Dishes", type: :system do
 
         # other_userをフォローする場合
         user.follow(other_user)
-        fill_in 'q_name_cont', with: 'かに'
+        fill_in 'q_name_or_ingredients_name_cont', with: 'かに'
         click_button '検索'
         expect(page).to have_css 'h3', text: "”かに”の検索結果：2件"
         within find('.dishes') do
           expect(page).to have_css 'li', count: 2
         end
-        fill_in 'q_name_cont', with: '野菜'
+        fill_in 'q_name_or_ingredients_name_cont', with: '野菜'
         click_button '検索'
         expect(page).to have_css 'h3', text: "”野菜”の検索結果：2件"
         within find('.dishes') do
           expect(page).to have_css 'li', count: 2
         end
+
+        # 材料も含めて検索に引っかかること
+        create(:ingredient, name: 'かにの切り身', dish: Dish.first)
+        fill_in 'q_name_or_ingredients_name_cont', with: 'かに'
+        click_button '検索'
+        expect(page).to have_css 'h3', text: "”かに”の検索結果：3件"
+        within find('.dishes') do
+          expect(page).to have_css 'li', count: 3
+        end
       end
 
       it "検索ワードを入れずに検索ボタンを押した場合、料理一覧が表示されること" do
-        fill_in 'q_name_cont', with: ''
+        fill_in 'q_name_or_ingredients_name_cont', with: ''
         click_button '検索'
         expect(page).to have_css 'h3', text: "料理一覧"
         within find('.dishes') do
@@ -255,30 +392,24 @@ RSpec.describe "Dishes", type: :system do
     end
   end
 
-    context "コメントの登録＆削除" do
-      it "自分の料理に対するコメントの登録＆削除が正常に完了すること" do
+  describe "料理一覧ページ" do
+    context "CSV出力機能" do
+      before do
         login_for_system(user)
-        visit dish_path(dish)
-        fill_in "comment_content", with: "今日の味付けは大成功"
-        click_button "コメント"
-        within find("#comment-#{Comment.last.id}") do
-          expect(page).to have_selector 'span', text: user.name
-          expect(page).to have_selector 'span', text: '今日の味付けは大成功'
-        end
-        expect(page).to have_content "コメントを追加しました！"
-        click_link "削除", href: comment_path(Comment.last)
-        expect(page).not_to have_selector 'span', text: '今日の味付けは大成功'
-        expect(page).to have_content "コメントを削除しました"
       end
 
-      it "別ユーザーの料理のコメントには削除リンクが無いこと" do
-        login_for_system(other_user)
-        visit dish_path(dish)
-        within find("#comment-#{comment.id}") do
-          expect(page).to have_selector 'span', text: user.name
-          expect(page).to have_selector 'span', text: comment.content
-          expect(page).not_to have_link '削除', href: dish_path(dish)
-        end
+      it "トップページからCSV出力が行えること" do
+        visit root_path
+        click_link 'みんなの料理をCSV出力'
+        expect(page.response_headers['Content-Disposition']).to \
+          include("みんなの料理一覧_#{Time.current.strftime('%Y%m%d_%H%M')}.csv")
+      end
+
+      it "プロフィールページからCSV出力が行えること" do
+        visit user_path(user)
+        click_link 'みんなの料理をCSV出力'
+        expect(page.response_headers['Content-Disposition']).to \
+          include("みんなの料理一覧_#{Time.current.strftime('%Y%m%d_%H%M')}.csv")
       end
     end
   end
