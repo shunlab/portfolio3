@@ -23,5 +23,6 @@ module Portfolio3
     # -- all .rb files in that directory are automatically loaded.
     config.action_view.embed_authenticity_token_in_remote_forms = true
     config.time_zone = 'Tokyo'
+    config.assets.initialize_on_precompile = false
   end
 end
